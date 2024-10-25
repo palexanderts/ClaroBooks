@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{EE8EE305-B968-4F0C-BC69-1637D7B37D79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Blazor", "WebApp.Blazor\WebApp.Blazor.csproj", "{50729692-2499-4A9E-9B63-A039C44BFBAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Razor", "WebApp.Blazor\WebApp.Razor.csproj", "{50729692-2499-4A9E-9B63-A039C44BFBAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
