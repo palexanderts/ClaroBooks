@@ -1,0 +1,160 @@
+﻿@page "/books"
+@inject BookServiceOnline BookServiceOnline
+@inject NavigationManager NavigationManager
+
+
+<AlertComponent ShowAlert="showErrorAlert" Message="Ocurrió un error al cargar los libros. Por favor, inténtalo de nuevo." />
+
+
+<div class="container mt-4">
+    <h3 class="mb-4">Lista de Libros</h3>
+
+
+    @if (books == null)
+    {
+        <p class="text-center"><em>Cargando...</em></p>
+    }
+    else
+    {
+        <div class="mb-3">
+            <div class="input-group">
+                <input type="number" @bind="searchId" class="form-control" placeholder="Ingrese ID del libro" />
+                <button class="btn btn-outline-secondary" @onclick="SearchBookById">Buscar</button>
+            </div>
+        </div>
+
+        @if (searchedBook != null)
+        {
+            <div class="alert alert-info">
+                <strong>Libro encontrado:</strong>
+                <div>
+                    <strong>Título:</strong> @searchedBook.Title <br />
+                    <strong>Descripción:</strong> @searchedBook.Description <br />
+                    <strong>Páginas:</strong> @searchedBook.PageCount <br />
+                    <strong>Fecha de Publicación:</strong> @searchedBook.PublishDate.ToShortDateString()
+                </div>
+            </div>
+        }
+
+
+        <div class="mb-3">
+            <button class="btn btn-primary" @onclick="CreateBook">Crear Libro</button>
+        </div>
+
+        <div class="list-group">
+            @foreach (var book in books)
+            {
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <a class="book-title" @onclick="() => ViewDetails(book.Id)" style="text-decoration: none; color: #007bff;">
+                        @book.Title
+                    </a>
+                    <div>
+                        <button class="btn btn-info btn-sm me-2" @onclick="() => ViewDetails(book.Id)">Ver Libro</button>
+                        <button class="btn btn-warning btn-sm me-2" @onclick="() => EditBook(book.Id)">Editar</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => OpenDeleteConfirmation(book.Id)">Eliminar</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmationLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteConfirmation"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar este libro?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteConfirmation">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteBookConfirmed">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Domain.Books.Book> books;
+    private int bookIdToDelete;
+    private bool showDeleteConfirmation = false;
+    private int searchId;
+    private Domain.Books.Book searchedBook;
+    private bool showErrorAlert = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoadBooks();
+    }
+
+    private async Task LoadBooks()
+    {
+        await Task.Delay(500);
+
+        var result = await BookServiceOnline.GetBooksAsync();
+        if (result.Type == Domain.DomainEvents.DomainEventMesage.EventType.Ok)
+        {
+            this.books = result.Data.ToList();
+        }
+        else
+        {
+            showErrorAlert = true;
+            this.books = new List<Domain.Books.Book>();
+        }
+    }
+
+    private void OpenDeleteConfirmation(int id)
+    {
+        bookIdToDelete = id;
+        showDeleteConfirmation = true;
+    }
+
+    private void CloseDeleteConfirmation()
+    {
+        showDeleteConfirmation = false;
+    }
+
+    private async Task DeleteBookConfirmed()
+    {
+        var response = await BookServiceOnline.DeleteBookAsync(bookIdToDelete);
+        if (response.Type == Domain.DomainEvents.DomainEventMesage.EventType.Ok)
+        {
+            await LoadBooks();
+        }
+        showDeleteConfirmation = false;
+    }
+
+    private async Task SearchBookById()
+    {
+        var result = await BookServiceOnline.GetBookByIdAsync(searchId);
+        if (result.Type == Domain.DomainEvents.DomainEventMesage.EventType.Ok)
+        {
+            searchedBook = result.Data;
+        }
+        else
+        {
+            searchedBook = null;
+        }
+    }
+
+    private void ViewDetails(int id)
+    {
+        NavigationManager.NavigateTo($"/books/{id}");
+    }
+
+    private void CreateBook()
+    {
+        NavigationManager.NavigateTo("/create");
+    }
+
+    private void EditBook(int id)
+    {
+        NavigationManager.NavigateTo($"/edit/{id}");
+    }
+}

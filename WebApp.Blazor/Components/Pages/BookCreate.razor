@@ -1,0 +1,60 @@
+﻿@page "/create"
+@inject BookServiceOnline BookServiceOnline
+@inject NavigationManager NavigationManager
+
+<AlertComponent ShowAlert="showErrorAlert" Message="Ocurrió un error al cargar los libros. Por favor, inténtalo de nuevo." />
+
+<div class="container mt-4">
+    <h3>Crear Libro</h3>
+
+    <EditForm Model="book" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Título:</label>
+            <InputText @bind-Value="book.Title" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Descripción:</label>
+            <InputTextArea @bind-Value="book.Description" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Número de Páginas:</label>
+            <InputNumber @bind-Value="book.PageCount" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Extracto:</label>
+            <InputTextArea @bind-Value="book.Excerpt" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Fecha de Publicación:</label>
+            <InputDate @bind-Value="book.PublishDate" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Crear</button>
+        <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancelar</button>
+    </EditForm>
+</div>
+
+@code {
+    private Domain.Books.Book book = new Domain.Books.Book();
+    private bool showErrorAlert = false;
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await BookServiceOnline.CreateBookAsync(book);
+        if (response.Type == Domain.DomainEvents.DomainEventMesage.EventType.Ok)
+        {
+            NavigationManager.NavigateTo("/books");
+        }
+        else
+        {
+            showErrorAlert = true;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/books");
+    }
+}

@@ -1,0 +1,8 @@
+﻿<div class="alert alert-danger" role="alert" style="display:@(ShowAlert ? "block" : "none");">
+    @Message
+</div>
+
+@code {
+    [Parameter] public bool ShowAlert { get; set; } = false;
+    [Parameter] public string Message { get; set; } = "Ocurrió un error inesperado. Por favor, inténtalo nuevamente.";
+}

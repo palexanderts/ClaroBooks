@@ -1,0 +1,51 @@
+﻿@page "/books/{id:int}"
+@inject BookServiceOnline BookServiceOnline
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <h3>Detalles del Libro</h3>
+
+    @if (book == null)
+    {
+        <p class="text-center"><em>Cargando...</em></p>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>@book.Title</h4>
+            <p><strong>Descripción:</strong> @book.Description</p>
+            <p><strong>Páginas:</strong> @book.PageCount</p>
+            <p><strong>Fecha de publicación:</strong> @book.PublishDate.ToShortDateString()</p>
+        </div>
+
+        <div class="mt-4">
+            <button class="btn btn-secondary" @onclick="GoBack">Regresar</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Domain.Books.Book book;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await BookServiceOnline.GetBookByIdAsync(Id);
+        if (result.Type == Domain.DomainEvents.DomainEventMesage.EventType.Ok)
+        {
+            this.book = result.Data;
+        }
+    }
+
+    private void EditBook()
+    {
+        NavigationManager.NavigateTo($"/books/edit/{Id}");
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/books");
+    }
+}
